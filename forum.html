@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Форум ToolCube</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f7f9fc;
+    margin: 0; padding: 0;
+    color: #333;
+  }
+  header {
+    background: #1e88e5;
+    color: white;
+    padding: 15px 20px;
+    font-size: 1.5em;
+    font-weight: 700;
+    text-align: center;
+  }
+  main {
+    max-width: 900px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    padding: 20px;
+  }
+  h1 {
+    margin-top: 0;
+    font-weight: 700;
+  }
+  #newTopicForm, #newMessageForm {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 6px;
+    background: #fafafa;
+  }
+  input[type="text"], textarea {
+    width: 100%;
+    font-size: 1em;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  button {
+    background: #1e88e5;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:hover {
+    background: #1565c0;
+  }
+  .topic-list {
+    list-style: none;
+    padding: 0;
+  }
+  .topic-list li {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  .topic-list li:hover {
+    background: #f0f7ff;
+  }
+  .topic-title {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin: 0 0 5px 0;
+  }
+  .topic-meta {
+    color: #666;
+    font-size: 0.85em;
+  }
+  .message {
+    border-top: 1px solid #ddd;
+    padding: 10px 0;
+  }
+  .message .author {
+    font-weight: 700;
+  }
+  .message .date {
+    color: #999;
+    font-size: 0.8em;
+    margin-left: 10px;
+  }
+  #backToTopics {
+    margin-bottom: 20px;
+    cursor: pointer;
+    color: #1e88e5;
+    text-decoration: underline;
+  }
+  @media (max-width: 600px) {
+    main {
+      margin: 10px;
+      padding: 15px;
+    }
+  }
+</style>
+</head>
+<body>
+<header>Форум ToolCube</header>
+<main>
+  <div id="topicsView">
+    <h1>Темы форума</h1>
+    <form id="newTopicForm">
+      <input type="text" id="topicTitle" placeholder="Название темы" required />
+      <input type="text" id="topicAuthor" placeholder="Ваш ник" required />
+      <textarea id="topicMessage" placeholder="Первое сообщение" rows="3" required></textarea>
+      <button type="submit">Создать тему</button>
+    </form>
+    <ul class="topic-list" id="topicList"></ul>
+  </div>
+
+  <div id="topicDetailView" style="display:none;">
+    <div id="backToTopics">← Вернуться к темам</div>
+    <h1 id="detailTopicTitle"></h1>
+    <div id="messagesList"></div>
+    <form id="newMessageForm">
+      <input type="text" id="messageAuthor" placeholder="Ваш ник" required />
+      <textarea id="messageText" placeholder="Ответить на тему" rows="3" required></textarea>
+      <button type="submit">Отправить сообщение</button>
+    </form>
+  </div>
+</main>
+
+<script>
+  // Работа с localStorage для хранения тем и сообщений
+  const STORAGE_KEY = 'toolcube_forum';
+
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function loadData() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  }
+
+  function formatDate(date) {
+    return date.toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' });
+  }
+
+  let topics = loadData();
+  let currentTopicIndex = null;
+
+  const topicListEl = document.getElementById('topicList');
+  const topicsView = document.getElementById('topicsView');
+  const topicDetailView = document.getElementById('topicDetailView');
+  const detailTopicTitle = document.getElementById('detailTopicTitle');
+  const messagesList = document.getElementById('messagesList');
+  const backToTopics = document.getElementById('backToTopics');
+
+  // Рендер списка тем
+  function renderTopics() {
+    topicListEl.innerHTML = '';
+    if (topics.length === 0) {
+      topicListEl.innerHTML = '<li>Пока нет тем. Создайте первую!</li>';
+      return;
+    }
+    topics.forEach((topic, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="topic-title">${topic.title}</div>
+        <div class="topic-meta">Создал: ${topic.author} — сообщений: ${topic.messages.length}</div>
+      `;
+      li.onclick = () => openTopic(i);
+      topicListEl.appendChild(li);
+    });
+  }
+
+  // Открыть тему и показать сообщения
+  function openTopic(index) {
+    currentTopicIndex = index;
+    const topic = topics[index];
+    detailTopicTitle.textContent = topic.title;
+    renderMessages(topic.messages);
+    topicsView.style.display = 'none';
+    topicDetailView.style.display = 'block';
+  }
+
+  // Вернуться к списку тем
+  backToTopics.onclick = () => {
+    currentTopicIndex = null;
+    topicDetailView.style.display = 'none';
+    topicsView.style.display = 'block';
+  };
+
+  // Рендер сообщений в теме
+  function renderMessages(messages) {
+    messagesList.innerHTML = '';
+    if (messages.length === 0) {
+      messagesList.innerHTML = '<p>Пока нет сообщений.</p>';
+      return;
+    }
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = `
+        <span class="author">${msg.author}</span>
+        <span class="date">${formatDate(new Date(msg.date))}</span>
+        <div class="text">${msg.text.replace(/\n/g, '<br>')}</div>
+      `;
+      messagesList.appendChild(div);
+    });
+  }
+
+  // Обработчик создания новой темы
+  document.getElementById('newTopicForm').onsubmit = e => {
+    e.preventDefault();
+    const title = document.getElementById('topicTitle').value.trim();
+    const author = document.getElementById('topicAuthor').value.trim();
+    const message = document.getElementById('topicMessage').value.trim();
+    if (!title || !author || !message) return;
+
+    const newTopic = {
+      title,
+      author,
+      messages: [{
+        author,
+        text: message,
+        date: new Date().toISOString()
+      }]
+    };
+
+    topics.unshift(newTopic);
+    saveData(topics);
+    renderTopics();
+
+    e.target.reset();
+  };
+
+  // Обработчик добавления сообщения в тему
+  document.getElementById('newMessageForm').onsubmit = e => {
+    e.preventDefault();
+    if (currentTopicIndex === null) return;
+
+    const author = document.getElementById('messageAuthor').value.trim();
+    const text = document.getElementById('messageText').value.trim();
+    if (!author || !text) return;
+
+    topics[currentTopicIndex].messages.push({
+      author,
+      text,
+      date: new Date().toISOString()
+    });
+    saveData(topics);
+    renderMessages(topics[currentTopicIndex].messages);
+
+    e.target.reset();
+  };
+
+  // Инициализация
+  renderTopics();
+</script>
+</body>
+</html>
