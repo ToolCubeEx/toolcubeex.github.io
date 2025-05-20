@@ -50,7 +50,7 @@
 
   if (!sectionId || !sections[sectionId]) {
     alert('Неверный раздел');
-    window.location.href = 'index.html';
+    window.location.href = 'forum.html';
   }
 
   document.getElementById('sectionTitle').textContent = sections[sectionId];
@@ -112,7 +112,7 @@
   };
 
   document.getElementById('back').onclick = () => {
-    window.location.href = 'index.html';
+    window.location.href = 'forum.html';
   };
 
   renderTopics();
