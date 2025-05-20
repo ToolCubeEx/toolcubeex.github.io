@@ -5,6 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ToolCube — Гриферское Выживание</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Немного стилей для форм регистрации и входа */
+    #authContainer {
+      max-width: 350px;
+      margin: 20px auto;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+    #authContainer h2 {
+      margin-top: 0;
+      font-size: 1.2em;
+      text-align: center;
+    }
+    #authContainer input, #authContainer button {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0;
+      box-sizing: border-box;
+    }
+    #welcome {
+      text-align: center;
+      margin: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    #logoutBtn {
+      display: block;
+      margin: 10px auto;
+      padding: 8px 20px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -35,6 +69,26 @@
     <a href="https://toolcubeex.easydonate.ru" class="cta-button" target="_blank">Посмотреть Донат Привилегии</a>
   </section>
 
+  <!-- Блок авторизации и регистрации -->
+  <section id="authContainer">
+    <div id="registerForm">
+      <h2>Регистрация</h2>
+      <input type="text" id="regLogin" placeholder="Логин" />
+      <input type="password" id="regPass" placeholder="Пароль" />
+      <button onclick="register()">Зарегистрироваться</button>
+    </div>
+
+    <div id="loginForm" style="margin-top:20px;">
+      <h2>Вход</h2>
+      <input type="text" id="loginLogin" placeholder="Логин" />
+      <input type="password" id="loginPass" placeholder="Пароль" />
+      <button onclick="login()">Войти</button>
+    </div>
+
+    <div id="welcome" style="display:none;"></div>
+    <button id="logoutBtn" style="display:none;" onclick="logout()">Выйти</button>
+  </section>
+
   <footer>
     <div class="footer-links">
       <a href="https://t.me/ToolCubeEx" target="_blank">Telegram</a>
@@ -43,5 +97,64 @@
     </div>
     <p>© 2025 ToolCube. Все права защищены.</p>
   </footer>
+
+  <script>
+    function register() {
+      const login = document.getElementById('regLogin').value.trim();
+      const pass = document.getElementById('regPass').value.trim();
+      if (!login || !pass) return alert('Введите логин и пароль');
+
+      let users = JSON.parse(localStorage.getItem('users') || '{}');
+      if (users[login]) return alert('Пользователь с таким логином уже существует');
+
+      users[login] = { password: pass };
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('Регистрация успешна');
+      // Очистить форму
+      document.getElementById('regLogin').value = '';
+      document.getElementById('regPass').value = '';
+    }
+
+    function login() {
+      const login = document.getElementById('loginLogin').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+      if (!login || !pass) return alert('Введите логин и пароль');
+
+      let users = JSON.parse(localStorage.getItem('users') || '{}');
+      if (!users[login] || users[login].password !== pass) {
+        return alert('Неверный логин или пароль');
+      }
+
+      localStorage.setItem('loggedInUser', login);
+      showWelcome(login);
+
+      // Очистить форму входа
+      document.getElementById('loginLogin').value = '';
+      document.getElementById('loginPass').value = '';
+    }
+
+    function showWelcome(user) {
+      document.getElementById('welcome').textContent = 'Привет, ' + user + '!';
+      document.getElementById('welcome').style.display = 'block';
+      document.getElementById('logoutBtn').style.display = 'inline-block';
+      document.getElementById('registerForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'none';
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedInUser');
+      document.getElementById('welcome').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+      document.getElementById('registerForm').style.display = 'block';
+      document.getElementById('loginForm').style.display = 'block';
+    }
+
+    window.onload = function() {
+      const loggedUser = localStorage.getItem('loggedInUser');
+      if (loggedUser) {
+        showWelcome(loggedUser);
+      }
+    };
+  </script>
 </body>
 </html>
