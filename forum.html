@@ -134,7 +134,6 @@
 </main>
 
 <script>
-  // Работа с localStorage для хранения тем и сообщений
   const STORAGE_KEY = 'toolcube_forum';
 
   function saveData(data) {
@@ -160,7 +159,6 @@
   const messagesList = document.getElementById('messagesList');
   const backToTopics = document.getElementById('backToTopics');
 
-  // Рендер списка тем
   function renderTopics() {
     topicListEl.innerHTML = '';
     if (topics.length === 0) {
@@ -178,7 +176,6 @@
     });
   }
 
-  // Открыть тему и показать сообщения
   function openTopic(index) {
     currentTopicIndex = index;
     const topic = topics[index];
@@ -188,14 +185,12 @@
     topicDetailView.style.display = 'block';
   }
 
-  // Вернуться к списку тем
   backToTopics.onclick = () => {
     currentTopicIndex = null;
     topicDetailView.style.display = 'none';
     topicsView.style.display = 'block';
   };
 
-  // Рендер сообщений в теме
   function renderMessages(messages) {
     messagesList.innerHTML = '';
     if (messages.length === 0) {
@@ -214,7 +209,6 @@
     });
   }
 
-  // Обработчик создания новой темы
   document.getElementById('newTopicForm').onsubmit = e => {
     e.preventDefault();
     const title = document.getElementById('topicTitle').value.trim();
@@ -239,7 +233,6 @@
     e.target.reset();
   };
 
-  // Обработчик добавления сообщения в тему
   document.getElementById('newMessageForm').onsubmit = e => {
     e.preventDefault();
     if (currentTopicIndex === null) return;
@@ -259,7 +252,6 @@
     e.target.reset();
   };
 
-  // Инициализация
   renderTopics();
 </script>
 </body>
