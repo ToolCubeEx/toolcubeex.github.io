@@ -53,4 +53,52 @@
     padding: 10px 15px;
     border-radius: 4px;
     cursor: pointer;
-    font-weight
+    font-weight: 700;
+  }
+  button:hover {
+    background: #1565c0;
+  }
+</style>
+</head>
+<body>
+<header>Форум ToolCube</header>
+<main>
+  <div id="back">&larr; Назад к темам</div>
+  <h1 id="topicTitle"></h1>
+
+  <div id="messagesList"></div>
+
+  <form id="newMessageForm">
+    <h2>Ответить в тему</h2>
+    <input type="text" id="messageAuthor" placeholder="Ваш ник" required />
+    <textarea id="messageText" placeholder="Текст сообщения" rows="3" required></textarea>
+    <button type="submit">Отправить</button>
+  </form>
+</main>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const sectionId = params.get('section');
+  const topicIndex = parseInt(params.get('topic'));
+
+  const sections = {
+    general: 'Общие обсуждения',
+    grief: 'Гриферское выживание',
+    anarchy: 'Анархическое выживание',
+    appeals: 'Жалобы и апелляции'
+  };
+
+  if (!sectionId || !sections[sectionId] || isNaN(topicIndex)) {
+    alert('Неверные параметры темы');
+    window.location.href = 'forum.html';
+  }
+
+  const STORAGE_KEY = 'toolcube_forum_data';
+
+  function loadData() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  }
+
+  function saveData(data) {
+    localStorage.set
