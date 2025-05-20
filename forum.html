@@ -1,40 +1,131 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Форум ToolCube</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 0; }
-    header { background: #1e88e5; color: white; padding: 15px; text-align: center; font-size: 1.8em; }
-    main { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 10px 0; }
-    a { color: #1e88e5; font-weight: 700; text-decoration: none; font-size: 1.2em; }
-    a:hover { text-decoration: underline; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Форум ToolCube — Разделы</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 0; }
+  header { background: #1e88e5; color: white; padding: 15px; text-align: center; font-size: 1.8em; }
+  main { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
+  ul { list-style: none; padding: 0; }
+  li { margin: 10px 0; }
+  a { color: #1e88e5; font-weight: 700; text-decoration: none; font-size: 1.2em; }
+  a:hover { text-decoration: underline; }
+</style>
 </head>
 <body>
-  <header>Форум ToolCube</header>
-  <main>
-    <h1>Разделы форума</h1>
-    <ul id="sectionsList"></ul>
-  </main>
+<header>Форум ToolCube</header>
+<main>
+  <h1>Разделы форума</h1>
+  <ul id="sectionsList"></ul>
+</main>
 
-  <script>
-    const sections = [
-      { id: 'general', title: 'Общие обсуждения' },
-      { id: 'grief', title: 'Гриферское выживание' },
-      { id: 'anarchy', title: 'Анархическое выживание' },
-      { id: 'appeals', title: 'Жалобы и апелляции' }
-    ];
+<script>
+  const sections = [
+    { id: 'general', title: 'Общие обсуждения' },
+    { id: 'grief', title: 'Гриферское выживание' },
+    { id: 'anarchy', title: 'Анархическое выживание' },
+    { id: 'appeals', title: 'Жалобы и апелляции' }
+  ];
 
-    const ul = document.getElementById('sectionsList');
-    sections.forEach(s => {
-      const li = document.createElement('li');
-      li.innerHTML = `<a href="section.html?section=${s.id}">${s.title}</a>`;
-      ul.appendChild(li);
-    });
-  </script>
+  const ul = document.getElementById('sectionsList');
+  sections.forEach(s => {
+    const li = document.createElement('li');
+    li.innerHTML = `<a href="section.html?section=${s.id}">${s.title}</a>`;
+    ul.appendChild(li);
+  });
+</script>
 </body>
 </html>
+2. section.html — список тем выбранного раздела
+html
+Копіювати
+Редагувати
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Форум ToolCube — Темы раздела</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f7fb; margin: 0; padding: 0; }
+  header { background: #1e88e5; color: white; padding: 15px; text-align: center; font-size: 1.8em; }
+  main { max-width: 900px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; }
+  ul { list-style: none; padding: 0; }
+  li { margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #ddd; }
+  a { color: #1e88e5; font-weight: 700; text-decoration: none; font-size: 1.1em; }
+  a:hover { text-decoration: underline; }
+  #back { margin-bottom: 20px; display: inline-block; color: #1e88e5; cursor: pointer; }
+  form { margin-top: 20px; background: #fafafa; padding: 15px; border-radius: 6px; border: 1px solid #ddd; }
+  input, textarea { width: 100%; margin-bottom: 10px; padding: 8px; font-size: 1em; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; }
+  button { background: #1e88e5; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: 700; }
+  button:hover { background: #1565c0; }
+  .meta { color: #666; font-size: 0.9em; }
+</style>
+</head>
+<body>
+<header>Форум ToolCube</header>
+<main>
+  <div id="back">&larr; Назад к разделам</div>
+  <h1 id="sectionTitle"></h1>
+
+  <ul id="topicsList"></ul>
+
+  <form id="newTopicForm">
+    <h2>Создать новую тему</h2>
+    <input type="text" id="topicTitle" placeholder="Название темы" required />
+    <input type="text" id="topicAuthor" placeholder="Ваш ник" required />
+    <textarea id="topicMessage" placeholder="Первое сообщение" rows="3" required></textarea>
+    <button type="submit">Создать тему</button>
+  </form>
+</main>
+
+<script>
+  // Получаем id раздела из URL
+  const params = new URLSearchParams(window.location.search);
+  const sectionId = params.get('section');
+
+  const sections = {
+    general: 'Общие обсуждения',
+    grief: 'Гриферское выживание',
+    anarchy: 'Анархическое выживание',
+    appeals: 'Жалобы и апелляции'
+  };
+
+  if (!sectionId || !sections[sectionId]) {
+    alert('Неверный раздел');
+    window.location.href = 'index.html';
+  }
+
+  document.getElementById('sectionTitle').textContent = sections[sectionId];
+
+  const STORAGE_KEY = 'toolcube_forum_data';
+
+  // Загружаем данные форума из localStorage
+  function loadData() {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  }
+
+  // Сохраняем данные форума в localStorage
+  function saveData(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  let data = loadData();
+
+  if (!data[sectionId]) {
+    data[sectionId] = [];
+  }
+
+  const topicsList = document.getElementById('topicsList');
+  const newTopicForm = document.getElementById('newTopicForm');
+
+  function renderTopics() {
+    topicsList.innerHTML = '';
+    if (data[sectionId].length === 0) {
+      topicsList.innerHTML = '<li>Темы пока отсутствуют. Создайте первую!</li>';
+      return;
+    }
+
